@@ -4,11 +4,15 @@ import (
 	"fmt"
 	"live-code-farmer-II/model"
 	"live-code-farmer-II/repo"
+	"time"
 )
 
 type BillUsecase interface {
 	CreateBill(header *model.BillHeaderModel) error
 	UpdateTotalBillDetails(header *model.BillHeaderModel)
+	GetTotalIncomeToday() (float64, error)
+	GetTotalIncomeMonthly(year int, month time.Month) (float64, error)
+	GetTotalIncomeYearly(year int) (float64, error)
 }
 
 type billUsecase struct {
@@ -52,6 +56,33 @@ func (u *billUsecase) UpdateTotalBillDetails(header *model.BillHeaderModel) {
 	for _, detail := range header.ArrDetails {
 		detail.Total = detail.Price * detail.Quantity
 	}
+}
+
+func (u *billUsecase) GetTotalIncomeToday() (float64, error) {
+	totalIncome, err := u.billRepo.GetTotalIncomeToday()
+	if err != nil {
+		return 0, err
+	}
+
+	return totalIncome, nil
+}
+
+func (u *billUsecase) GetTotalIncomeMonthly(year int, month time.Month) (float64, error) {
+	totalIncome, err := u.billRepo.GetTotalIncomeMonthly(year, month)
+	if err != nil {
+		return 0, err
+	}
+
+	return totalIncome, nil
+}
+
+func (u *billUsecase) GetTotalIncomeYearly(year int) (float64, error) {
+	totalIncome, err := u.billRepo.GetTotalIncomeYearly(year)
+	if err != nil {
+		return 0, err
+	}
+
+	return totalIncome, nil
 }
 
 func NewBillUsecase(billRepo repo.BillRepo, ferRepo repo.FertilizersRepo, farmRepo repo.FarmerRepo) BillUsecase {

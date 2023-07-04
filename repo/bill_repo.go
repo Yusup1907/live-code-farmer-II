@@ -12,6 +12,8 @@ type BillRepo interface {
 	GetAllBills() ([]*model.BillHeaderModel, error)
 	GetAllBillDetails() ([]*model.BillDetailModel, error)
 	GetTotalIncomeToday() (float64, error)
+	GetTotalIncomeMonthly(year int, month time.Month) (float64, error)
+	GetTotalIncomeYearly(year int) (float64, error)
 }
 
 type billRepo struct {
@@ -141,6 +143,28 @@ func (r *billRepo) GetTotalIncomeToday() (float64, error) {
 	query := "SELECT COALESCE(SUM(total), 0) FROM bills WHERE DATE(date) = DATE(NOW())"
 	var totalIncome float64
 	err := r.db.QueryRow(query).Scan(&totalIncome)
+	if err != nil {
+		return 0, err
+	}
+
+	return totalIncome, nil
+}
+
+func (r *billRepo) GetTotalIncomeMonthly(year int, month time.Month) (float64, error) {
+	query := "SELECT COALESCE(SUM(total), 0) FROM bills WHERE EXTRACT(YEAR FROM date) = $1 AND EXTRACT(MONTH FROM date) = $2"
+	var totalIncome float64
+	err := r.db.QueryRow(query, year, month).Scan(&totalIncome)
+	if err != nil {
+		return 0, err
+	}
+
+	return totalIncome, nil
+}
+
+func (r *billRepo) GetTotalIncomeYearly(year int) (float64, error) {
+	query := "SELECT COALESCE(SUM(total), 0) FROM bills WHERE EXTRACT(YEAR FROM date) = $1"
+	var totalIncome float64
+	err := r.db.QueryRow(query, year).Scan(&totalIncome)
 	if err != nil {
 		return 0, err
 	}
