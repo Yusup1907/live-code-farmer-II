@@ -46,17 +46,7 @@ func (h *billHandler) GetTotalIncomeToday(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"total_income": totalIncome})
 }
 
-func (h *billHandler) GetTotalIncomeToday(c *gin.Context) {
-	totalIncome, err := h.billUsecase.GetTotalIncomeToday()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"total_income": totalIncome})
-}
-
-func (h *BillHandler) GetTotalIncomeMonthly(c *gin.Context) {
+func (h *billHandler) GetTotalIncomeMonthly(c *gin.Context) {
 	year := c.Query("year")
 	month := c.Query("month")
 
@@ -82,7 +72,7 @@ func (h *BillHandler) GetTotalIncomeMonthly(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"total_income": totalIncome})
 }
 
-func (h *BillHandler) GetTotalIncomeYearly(c *gin.Context) {
+func (h *billHandler) GetTotalIncomeYearly(c *gin.Context) {
 	year := c.Query("year")
 
 	yearInt, err := strconv.Atoi(year)
@@ -100,12 +90,44 @@ func (h *BillHandler) GetTotalIncomeYearly(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"total_income": totalIncome})
 }
 
+func (h *billHandler) GetBillByID(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid bill ID"})
+		return
+	}
+
+	bill, err := h.billUsecase.GetBillByID(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if bill == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Bill not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, bill)
+}
+
+func (h *billHandler) GetAllBills(c *gin.Context) {
+	bills, err := h.billUsecase.GetAllBills()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, bills)
+}
+
 func NewBillHandler(srv *gin.Engine, billUsecase usecase.BillUsecase) BillHandler {
 	billHandler := &billHandler{
 		billUsecase: billUsecase,
 	}
-	// s.GET("/bills", billHandler.GetAllBills)
-	// s.GET("/bills/:id", billHandler.GetBillByID)
+	srv.GET("/bills", billHandler.GetAllBills)
+	srv.GET("/bills/:id", billHandler.GetBillByID)
 	srv.GET("/bills/today", billHandler.GetTotalIncomeToday)
 	srv.GET("/bills/monthly", billHandler.GetTotalIncomeMonthly)
 	srv.GET("/bills/yearly", billHandler.GetTotalIncomeYearly)

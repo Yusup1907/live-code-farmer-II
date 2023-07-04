@@ -13,6 +13,8 @@ type BillUsecase interface {
 	GetTotalIncomeToday() (float64, error)
 	GetTotalIncomeMonthly(year int, month time.Month) (float64, error)
 	GetTotalIncomeYearly(year int) (float64, error)
+	GetBillByID(id int) (*model.BillHeaderModel, error)
+	GetAllBills() ([]*model.BillHeaderModel, error)
 }
 
 type billUsecase struct {
@@ -83,6 +85,37 @@ func (u *billUsecase) GetTotalIncomeYearly(year int) (float64, error) {
 	}
 
 	return totalIncome, nil
+}
+
+func (u *billUsecase) GetBillByID(id int) (*model.BillHeaderModel, error) {
+	bill, err := u.billRepo.GetBillByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return bill, nil
+}
+
+func (u *billUsecase) GetAllBills() ([]*model.BillHeaderModel, error) {
+	bills, err := u.billRepo.GetAllBills()
+	if err != nil {
+		return nil, err
+	}
+
+	details, err := u.billRepo.GetAllBillDetails()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, bill := range bills {
+		for _, detail := range details {
+			if detail.BillID == bill.ID {
+				bill.ArrDetails = append(bill.ArrDetails, detail)
+			}
+		}
+	}
+
+	return bills, nil
 }
 
 func NewBillUsecase(billRepo repo.BillRepo, ferRepo repo.FertilizersRepo, farmRepo repo.FarmerRepo) BillUsecase {
