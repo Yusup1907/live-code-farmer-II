@@ -6,7 +6,7 @@ type FertilizersModel struct {
 	ID        int       `json:"id"`
 	Name      string    `json:"name"`
 	Stok      int       `json:"stok"`
-	Price     *int      `json:"price"`
+	Price     float64   `json:"price"`
 	IsActive  bool      `json:"is_active"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -15,9 +15,9 @@ type FertilizersModel struct {
 }
 
 type CreatefertilizersRequest struct {
-	Name      string `json:"name" binding:"required,min=3"`
-	Stok      int    `json:"stok" binding:"required"`
-	Price     *int   `json:"price" binding:"required"`
-	IsActive  bool   `json:"is_active"`
-	CreatedBy string `json:"created_by"`
+	Name      string  `json:"name" binding:"required,min=3"`
+	Stok      int     `json:"stok" binding:"required"`
+	Price     float64 `json:"price" binding:"required"`
+	IsActive  bool    `json:"is_active"`
+	CreatedBy string  `json:"created_by"`
 }

@@ -49,7 +49,7 @@ func (um *usecaseManager) GetFertilizersUsecase() usecase.FertilizersUsecase {
 
 func (um *usecaseManager) GetBillUsecase() usecase.BillUsecase {
 	um.onceLoadBillUsecase.Do(func() {
-		um.billUsecase = usecase.NewBillUsecase(um.repoManager.GetBillRepo())
+		um.billUsecase = usecase.NewBillUsecase(um.repoManager.GetBillRepo(), um.repoManager.GetFertilizersRepo(), um.repoManager.GetFarmerRepo())
 	})
 	return um.billUsecase
 }

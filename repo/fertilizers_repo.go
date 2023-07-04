@@ -13,6 +13,7 @@ type FertilizersRepo interface {
 	GetFertilizerByName(string) (*model.FertilizersModel, error)
 	UpdateFertilizer(id int, ferti *model.FertilizersModel) error
 	DeleteFertilizer(id int) error
+	ReduceStock(fertilizerID int, qty float64) error
 }
 
 type fertilizersRepoImpl struct {
@@ -113,6 +114,16 @@ func (ferRepo *fertilizersRepoImpl) DeleteFertilizer(id int) error {
 	_, err := ferRepo.db.Exec(qry, id)
 	if err != nil {
 		return fmt.Errorf("DeleteFertilizer() : %w", err)
+	}
+
+	return nil
+}
+
+func (ferRepo *fertilizersRepoImpl) ReduceStock(fertilizerID int, qty float64) error {
+	query := "UPDATE fertilizers SET stok = stok - $1 WHERE id = $2"
+	_, err := ferRepo.db.Exec(query, qty, fertilizerID)
+	if err != nil {
+		return err
 	}
 
 	return nil

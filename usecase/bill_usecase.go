@@ -7,6 +7,8 @@ import (
 )
 
 type BillUsecase interface {
+	CreateBill(header *model.BillHeaderModel) error
+	UpdateTotalBillDetails(header *model.BillHeaderModel)
 }
 
 type billUsecase struct {
@@ -30,7 +32,7 @@ func (u *billUsecase) CreateBill(header *model.BillHeaderModel) error {
 		detail.CreatedBy = header.CreatedBy
 		detail.UpdatedBy = cb
 
-		err = u.ferRepo.ReduceStock(detail.FertilizerID, detail.Qty)
+		err = u.ferRepo.ReduceStock(detail.FertilizerID, detail.Quantity)
 		if err != nil {
 			return err
 		}
@@ -44,6 +46,12 @@ func (u *billUsecase) CreateBill(header *model.BillHeaderModel) error {
 		return err
 	}
 	return nil
+}
+
+func (u *billUsecase) UpdateTotalBillDetails(header *model.BillHeaderModel) {
+	for _, detail := range header.ArrDetails {
+		detail.Total = detail.Price * detail.Quantity
+	}
 }
 
 func NewBillUsecase(billRepo repo.BillRepo, ferRepo repo.FertilizersRepo, farmRepo repo.FarmerRepo) BillUsecase {
