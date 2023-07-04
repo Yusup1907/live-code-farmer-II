@@ -9,6 +9,7 @@ type UsecaseManager interface {
 	GetFarmerUsecase() usecase.FarmerUsecase
 	GetPlantUsecase() usecase.PlantUsecase
 	GetFertilizersUsecase() usecase.FertilizersUsecase
+	GetBillUsecase() usecase.BillUsecase
 }
 
 type usecaseManager struct {
@@ -17,10 +18,12 @@ type usecaseManager struct {
 	farmUsecase  usecase.FarmerUsecase
 	plantUsecase usecase.PlantUsecase
 	ferUsecase   usecase.FertilizersUsecase
+	billUsecase  usecase.BillUsecase
 
 	onceLoadFarmerUsecase sync.Once
 	onceLoadPlantUsecase  sync.Once
 	onceLoadFerUsecase    sync.Once
+	onceLoadBillUsecase   sync.Once
 }
 
 func (um *usecaseManager) GetFarmerUsecase() usecase.FarmerUsecase {
@@ -42,6 +45,13 @@ func (um *usecaseManager) GetFertilizersUsecase() usecase.FertilizersUsecase {
 		um.ferUsecase = usecase.NewFertilizersUseCase(um.repoManager.GetFertilizersRepo())
 	})
 	return um.ferUsecase
+}
+
+func (um *usecaseManager) GetBillUsecase() usecase.BillUsecase {
+	um.onceLoadBillUsecase.Do(func() {
+		um.billUsecase = usecase.NewBillUsecase(um.repoManager.GetBillRepo())
+	})
+	return um.billUsecase
 }
 
 // func (um *usecaseManager) GetTransactionUsecase() usecase.TransactionUsecase {

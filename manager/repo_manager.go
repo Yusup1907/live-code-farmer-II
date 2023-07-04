@@ -9,6 +9,7 @@ type RepoManager interface {
 	GetFarmerRepo() repo.FarmerRepo
 	GetPlantRepo() repo.PlantRepo
 	GetFertilizersRepo() repo.FertilizersRepo
+	GetBillRepo() repo.BillRepo
 }
 
 type repoManager struct {
@@ -17,9 +18,11 @@ type repoManager struct {
 	farmRepo           repo.FarmerRepo
 	plantRepo          repo.PlantRepo
 	ferRepo            repo.FertilizersRepo
+	billRepo repo.BillRepo
 	onceLoadFarmerRepo sync.Once
 	onceLoadPlantRepo  sync.Once
 	onceLoadPferRepo   sync.Once
+	onceLoadBillRepo   sync.Once
 }
 
 func (rm *repoManager) GetFarmerRepo() repo.FarmerRepo {
@@ -41,6 +44,13 @@ func (rm *repoManager) GetFertilizersRepo() repo.FertilizersRepo {
 		rm.ferRepo = repo.NewFertilizersRepo(rm.infraManager.GetDB())
 	})
 	return rm.ferRepo
+}
+
+func (rm *repoManager) GetBillRepo() repo.BillRepo {
+	rm.onceLoadBillRepo.Do(func() {
+		rm.billRepo = repo.NewBillRepo(rm.infraManager.GetDB())
+	})
+	return rm.billRepo
 }
 
 func NewRepoManager(infraManager InfraManager) RepoManager {

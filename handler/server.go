@@ -19,7 +19,7 @@ func (s *server) Run() {
 	NewFarmerHandler(s.srv, s.usecaseManager.GetFarmerUsecase())
 	NewPlantHandler(s.srv, s.usecaseManager.GetPlantUsecase())
 	NewFertilizersHandler(s.srv, s.usecaseManager.GetFertilizersUsecase())
-	NewFertilizerPriceHandler(s.srv, s.usecaseManager.GetFertilizerPriceUsecase())
+	NewBillHandler(s.srv, s.usecaseManager.GetBillUsecase())
 
 	s.srv.Run()
 }
